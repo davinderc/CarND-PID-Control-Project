@@ -27,4 +27,7 @@ The speed was kept low at 20 MPH, since increasing the set speed would require r
 with appropriate tuning methods, one can achieve significantly better results, even at high speeds.
 
 It is notable that at some points in the track, there appeared to be errors in the reference line, which caused the car to veer off
-dangeously towards the edge of road. It is possible that this was intenionally programmed to create some difficulties for the controller designer.
+dangerously towards the edge of road. It is possible that this was intenionally programmed to create some difficulties for the controller designer.
+
+A video of the controller operating on the simulator is available here: 
+https://youtu.be/xa6czOAuU98
