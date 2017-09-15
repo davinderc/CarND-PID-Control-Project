@@ -33,14 +33,20 @@ int main()
   uWS::Hub h;
 
   PID pid;
-  double init_Kp = 0.08;
-  double init_Ki = 0;
-  double init_Kd = 0.04;
+  PID pid_speed;
+  double init_Kp = 0.05;
+  double init_Ki = 0.0001;
+  double init_Kd = 2.5;
+  double init_Kp_s = 0.1;
+  double init_Ki_s = 0.0003;
+  //double speed_ref = 40.0;
+  //double throttle = 0;
   pid.Init(init_Kp, init_Ki, init_Kd);
+  pid_speed.Init(init_Kp_s, init_Ki_s, 0);
   // TODO: Initialize the pid variable.
 
 
-  h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&pid, &pid_speed](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -55,9 +61,14 @@ int main()
           double cte = std::stod(j[1]["cte"].get<std::string>());
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
-          double steer_value;
+          double steer_value = 0.0;
+          double speed_ref = 20.0;
+          double throttle = 0.0;
           pid.UpdateError(cte);
           steer_value = pid.TotalError();
+          pid_speed.UpdateError(speed_ref - speed);
+          throttle = -pid_speed.TotalError();
+
           /*
           * TODO: Calcuate steering value here, remember the steering value is
           * [-1, 1].
@@ -68,12 +79,13 @@ int main()
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
+          //std::cout << cte << " " <<
+
           json msgJson;
           msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["throttle"] = throttle;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
-          //std::cout << pid.p_error << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }
       } else {
